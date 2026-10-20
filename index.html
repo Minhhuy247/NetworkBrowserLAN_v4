@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NetScope Studio — Network Browser LAN</title>
+<link rel="stylesheet" href="/static/style.css">
+</head><body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">N<span>↗</span></div><div><strong>NetScope<span class="brand-dot">.</span></strong><small>NETWORK BROWSER LAN</small></div></div>
+    <div class="side-label">KHÔNG GIAN LÀM VIỆC</div>
+    <nav class="nav">
+      <button data-view="browser" class="nav-item active"><span class="nav-icon">◎</span><span>Trình duyệt HTTP</span><span class="nav-key">01</span></button>
+      <button data-view="chat" class="nav-item"><span class="nav-icon">◉</span><span>Nhắn tin LAN</span><span id="chatBadge" class="nav-badge hidden">0</span></button>
+      <button data-view="files" class="nav-item"><span class="nav-icon">▤</span><span>Truyền tệp</span><span id="fileBadge" class="nav-badge hidden">0</span></button>
+      <button data-view="monitor" class="nav-item"><span class="nav-icon">◫</span><span>Giám sát mạng</span></button>
+      <button data-view="guide" class="nav-item"><span class="nav-icon">◷</span><span>Hướng dẫn demo</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="mini-status"><span class="status-pulse" id="sideDot"></span><div><strong id="sideStatus">Chưa kết nối</strong><small id="sideIp">IP Server chưa xác nhận</small></div></div>
+      <div class="tech-tags"><span>TCP/IP</span><span>HTTP/1.1</span><span>SSE</span></div>
+      <div class="copyright">NETWORK PROGRAMMING PROJECT<br>VERSION 4.0 · 2026</div>
+    </div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><div class="top-left"><button class="iconbtn" id="backView" title="Quay lại trang trước">←</button><div class="crumb">WORKSPACE <span>/</span> <strong id="pageCrumb">Trình duyệt HTTP</strong></div></div><div class="top-right"><span class="header-clock" id="currentClock">--:--:--</span><span class="pill" id="headerOnline">● 0 CLIENT ONLINE</span><button class="mini-btn" id="disconnectBtn" disabled>Ngắt kết nối</button></div></header>
+    <main class="main">
+      <section class="view active" id="view-browser">
+        <div class="heading"><div><div class="eyebrow">HTTP EXPLORER / MODULE 01</div><h1>Trình duyệt <em>HTTP</em></h1><p>Gửi request bằng TCP Socket, phân tích HTML và kiểm tra phản hồi ngay trên Chrome hoặc Edge.</p></div><span class="heading-art">&lt;/&gt;</span></div>
+        <div class="card connection-card">
+          <div class="section-row"><div><h2>01 <span>·</span> Kết nối tới máy Server</h2><p>Nhập thủ công IPv4 LAN của máy Server (lấy bằng <code>ipconfig</code>).</p></div><span class="pill neutral" id="connectState">● OFFLINE</span></div>
+          <div class="connect-fields"><label>IP LAN SERVER<input id="serverIp" placeholder="Ví dụ: 192.168.1.20" autocomplete="off" spellcheck="false"></label><label>CỔNG HTTP<input id="serverPort" type="number" min="1" max="65535" value="8080"></label><label>TÊN CLIENT<input id="clientName" maxlength="32" placeholder="Ví dụ: Client 1" autocomplete="off"></label><button class="btn primary" id="connectBtn">↗ Kết nối LAN</button></div>
+          <div class="hint" id="connectionHint">Máy Client truy cập địa chỉ <code>http://IP_SERVER:8080</code> trước, rồi xác nhận IP tại đây.</div>
+        </div>
+        <div class="stats three"><div class="stat"><span>TRẠNG THÁI REQUEST</span><strong id="requestStatus">Sẵn sàng</strong><small id="requestMethodLabel">Chờ gửi yêu cầu</small></div><div class="stat"><span>THỜI GIAN PHẢN HỒI</span><strong id="elapsedValue">— ms</strong><small>Thời gian xử lý HTTP</small></div><div class="stat"><span>KÍCH THƯỚC DỮ LIỆU</span><strong id="bytesValue">—</strong><small>Phản hồi nhận được</small></div></div>
+        <div class="card request-card">
+          <div class="section-row"><div><h2>02 <span>·</span> Gửi HTTP request</h2><p>Nhập URL tài nguyên cần truy xuất. URL sẽ do Python Socket phía Server xử lý.</p></div><button class="light-btn" id="homeUrl">⌂ URL mẫu</button></div>
+          <div class="request-bar"><select id="httpMethod" aria-label="HTTP Method"><option>GET</option><option>POST</option><option>HEAD</option></select><input id="targetUrl" placeholder="https://example.com hoặc http://IP_SERVER:8080/demo" spellcheck="false"><button class="btn primary" id="sendRequest">➜ GỬI REQUEST</button></div>
+          <div id="postPanel" class="post-panel hidden"><label>NỘI DUNG POST (TEXT/PLAIN)</label><textarea id="postBody" rows="3" placeholder="Nhập dữ liệu để gửi bằng POST..."></textarea></div>
+          <div class="toolbar"><button class="light-btn" id="urlBack">← URL trước</button><button class="light-btn" id="urlForward">URL tiếp →</button><button class="light-btn" id="repeatRequest">↻ Gửi lại</button><span class="spacer"></span><span class="tiny" id="requestSummary">Chưa có phản hồi từ máy chủ</span></div>
+        </div>
+        <div class="two-cols">
+          <div class="card results-card"><div class="section-row"><div><h2>03 <span>·</span> Thống kê HTML</h2><p>Độ dài nội dung và số lượng thẻ trong HTML.</p></div></div><div class="tag-grid"><div><span>HTML LENGTH</span><strong id="htmlLength">—</strong><small>ký tự</small></div><div><span>&lt;p&gt;</span><strong id="tagP">0</strong><small>paragraph</small></div><div><span>&lt;div&gt;</span><strong id="tagDiv">0</strong><small>container</small></div><div><span>&lt;span&gt;</span><strong id="tagSpan">0</strong><small>inline</small></div><div><span>&lt;img&gt;</span><strong id="tagImg">0</strong><small>images</small></div></div><div class="notice">HEAD chỉ đọc HTTP headers, không tải nội dung HTML nên các bộ đếm sẽ bằng 0.</div></div>
+          <div class="card results-card"><div class="section-row"><div><h2>04 <span>·</span> HTTP Headers</h2><p>Response status, Content-Type, Content-Length và các trường header.</p></div></div><div class="headers-list" id="headersOutput"><div class="empty-mini">Chưa có headers. Hãy gửi GET, POST hoặc HEAD.</div></div></div>
+        </div>
+        <div class="card response-card"><div class="section-row"><div><h2>05 <span>·</span> Nội dung trả về</h2><p>Xem mã HTML, nội dung đọc được hoặc bản xem trước an toàn.</p></div><span id="responseType" class="pill neutral">CHƯA TẢI</span></div><div class="subtabs"><button class="subtab active" data-output="text">Văn bản</button><button class="subtab" data-output="code">Mã HTML</button><button class="subtab" data-output="preview">Xem trước</button><button class="subtab" data-output="request">Request gửi đi</button></div><pre id="outputText" class="body-output">Chưa có dữ liệu. Hãy chọn phương thức và nhấn GỬI REQUEST.</pre><pre id="outputCode" class="body-output hidden"></pre><div id="outputPreview" class="body-output preview-output hidden"><iframe id="htmlFrame" title="HTML preview" sandbox="" referrerpolicy="no-referrer"></iframe><div class="tiny">Bản xem trước được cách ly. Một số trang hiện đại không hiển thị đầy đủ.</div></div><pre id="outputRequest" class="body-output hidden"></pre></div>
+      </section>
+      <section class="view" id="view-chat"><div class="heading"><div><div class="eyebrow">REALTIME / MODULE 02</div><h1>Nhắn tin <em>LAN</em></h1><p>Chat riêng hoặc chat nhóm giữa các Client đang kết nối, cập nhật ngay qua Server-Sent Events.</p></div><span class="heading-art">✉</span></div>
+        <div class="chat-layout"><div class="card people-panel"><div class="section-row"><h2>Danh sách người nhận</h2><span class="pill neutral" id="peopleCount">0 ONLINE</span></div><button class="person selected" data-peer="all"><span class="avatar group-avatar">#</span><span><strong>Tất cả Client</strong><small>Chat nhóm · Broadcast</small></span></button><div id="peopleList"></div><div class="notice">Chọn từng Client để nhắn riêng, hoặc chọn Tất cả Client để gửi nhóm.</div></div>
+          <div class="card chat-box"><div class="chat-title"><div><h2 id="chatTitle"># Tất cả Client</h2><p id="chatSubtitle">Tin nhắn qua LAN · thời gian thực</p></div><span class="pill" id="chatOnline">● ONLINE</span></div><div id="messagesList" class="messages"><div class="empty-center"><span>✉</span><strong>Chưa có tin nhắn</strong><small>Hãy kết nối rồi gửi tin nhắn đầu tiên.</small></div></div><div class="chat-compose"><textarea id="messageInput" placeholder="Viết tin nhắn (Enter để gửi, Shift+Enter xuống dòng)..." rows="2"></textarea><button class="btn primary" id="sendChat">➤ Gửi</button></div></div></div>
+      </section>
+      <section class="view" id="view-files"><div class="heading"><div><div class="eyebrow">FILE TRANSFER / MODULE 03</div><h1>Truyền <em>tệp qua LAN</em></h1><p>Chọn người nhận, tải tệp lên Server và tải xuống có xác thực checksum SHA-256.</p></div><span class="heading-art">↥</span></div>
+        <div class="two-cols"><div class="card"><h2>01 <span>·</span> Gửi tệp</h2><p class="desc">Gửi Word, PDF, ảnh, ZIP hoặc dữ liệu khác. Tối đa 20 MB mỗi tệp.</p><label class="field-label">GỬI TỚI</label><select id="fileRecipient" class="select-field"><option value="all">Tất cả Client (nhóm)</option></select><label class="dropzone" id="dropzone"><span class="dropicon">⇧</span><strong>Nhấn để chọn tệp từ máy</strong><small id="selectedFileName">PDF, DOCX, PNG, JPG, ZIP, TXT... · Tối đa 20 MB</small><input type="file" id="fileInput" hidden></label><button class="btn primary full" id="uploadFile">↥ GỬI FILE</button><div class="progress hidden" id="uploadProgressWrap"><div class="progress-row"><span id="uploadText">Đang tải lên...</span><strong id="uploadPercent">0%</strong></div><div class="progress-track"><div id="uploadBar"></div></div></div></div>
+          <div class="card"><h2>02 <span>·</span> Tệp đã nhận</h2><p class="desc">File gửi đến được hiển thị tại đây. Bấm Tải xuống để lưu vào máy.</p><div id="inboxFiles" class="file-list"><div class="empty-mini">Chưa có file nào được gửi.</div></div><div class="progress hidden" id="downloadProgressWrap"><div class="progress-row"><span id="downloadText">Đang tải xuống...</span><strong id="downloadPercent">0%</strong></div><div class="progress-track"><div id="downloadBar"></div></div></div></div></div>
+        <div class="notice file-notice">File được lưu tạm trên Server khi chương trình đang chạy; Client nhận chủ động bấm Tải xuống. Hãy dùng trong mạng LAN tin cậy và không gửi dữ liệu nhạy cảm.</div>
+      </section>
+      <section class="view" id="view-monitor"><div class="heading"><div><div class="eyebrow">LIVE MONITOR / MODULE 04</div><h1>Giám sát <em>kết nối</em></h1><p>Theo dõi Client online, địa chỉ IP và nhật ký kết nối/ngắt kết nối có thời gian.</p></div><span class="heading-art">◫</span></div>
+        <div class="stats three"><div class="stat"><span>SỐ CLIENT ĐANG ONLINE</span><strong id="monitorCount">0</strong><small>Thời gian thực</small></div><div class="stat"><span>IP SERVER</span><strong id="monitorIp">—</strong><small>Cổng HTTP: <span id="monitorPort">8080</span></small></div><div class="stat"><span>GIAO THỨC</span><strong>TCP / HTTP</strong><small>SSE cho sự kiện thời gian thực</small></div></div>
+        <div class="card"><div class="section-row"><div><h2>Danh sách Client</h2><p>Địa chỉ IP được Server ghi nhận từ kết nối TCP.</p></div><button class="light-btn" id="refreshMonitor">↻ Làm mới</button></div><div class="table-scroll"><table><thead><tr><th>TÊN CLIENT</th><th>ĐỊA CHỈ IP</th><th>THỜI GIAN KẾT NỐI</th><th>TRẠNG THÁI</th></tr></thead><tbody id="onlineTable"><tr><td colspan="4" class="empty-mini">Chưa có Client.</td></tr></tbody></table></div></div>
+        <div class="card"><div class="section-row"><div><h2>Nhật ký hoạt động mạng</h2><p>Ghi sự kiện CONNECT, DISCONNECT, HTTP, CHAT, FILE, DOWNLOAD.</p></div><button class="light-btn" id="clearLogs">Xóa hiển thị</button></div><div class="log-list" id="networkLogs"><div class="empty-mini">Đang chờ sự kiện Server...</div></div></div>
+      </section>
+      <section class="view" id="view-guide"><div class="heading"><div><div class="eyebrow">PROJECT GUIDE / MODULE 05</div><h1>Hướng dẫn <em>demo</em></h1><p>Trình tự thao tác trước giảng viên, đúng trọng tâm môn Lập trình mạng.</p></div><span class="heading-art">?</span></div>
+        <div class="card guide"><h2>Quy trình demo nhóm 2 người</h2><ol><li><strong>Máy Server:</strong> chạy <code>python server.py</code> trên VS Code; đọc địa chỉ IPv4 từ <code>ipconfig</code>.</li><li><strong>Client 1 + Client 2:</strong> truy cập bằng Chrome vào <code>http://IP_SERVER:8080</code>, nhập IP Server thủ công và đặt tên riêng để kết nối.</li><li><strong>HTTP GET:</strong> nhập URL mẫu <code>http://IP_SERVER:8080/demo</code>, xem status, độ dài, số thẻ <code>p/div/span/img</code>.</li><li><strong>HTTP POST:</strong> nhập dữ liệu vào ô POST, bấm GỬI REQUEST và quan sát HTML Server trả về.</li><li><strong>HTTP HEAD:</strong> quan sát headers, Content-Type, Content-Length. Không có body.</li><li><strong>Chat:</strong> gửi tin riêng, sau đó gửi nhóm. Quan sát cập nhật thời gian thực mà không cần làm mới trang.</li><li><strong>Tệp:</strong> Client 1 chọn file gửi cho Client 2; Client 2 bấm Tải xuống, kiểm tra SHA-256 và mở file.</li><li><strong>Ngắt kết nối:</strong> một Client bấm Ngắt kết nối. Server ghi thời điểm disconnect và giảm số Online.</li></ol><div class="notice">Kiến thức cần giải thích: TCP/IP, socket.connect, bind/listen/accept, HTTP method, request/response, Content-Length, concurrent threads, SSE, byte stream và checksum.</div></div>
+      </section>
+      <footer class="footer">NETSCOPE STUDIO <span>·</span> ĐỒ ÁN LẬP TRÌNH MẠNG <span>·</span> BẢN V4 <span>·</span> LAN DEMO ONLY</footer>
+    </main>
+  </div>
+</div>
+<div class="toast-stack" id="toasts"></div>
+<script src="/static/app.js" defer></script>
+</body></html>
